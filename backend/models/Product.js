@@ -5,7 +5,8 @@ const productSchema = new mongoose.Schema({
   price: Number,
   image: String,
   description: String,
-  stock: Number
+  stock: Number,
+  category: { type: String, default: '' } // Nuevo campo para categoría
 });
 
 module.exports = mongoose.model('Product', productSchema);
