@@ -2,8 +2,9 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import AdminLogin from './pages/AdminLogin';
 import AdminPanel from './pages/AdminPanel';
-import RegisterAdmin from './pages/RegisterAdmin'; // importa el componente
+import RegisterAdmin from './pages/RegisterAdmin';
 import ProductDetails from './pages/ProductDetails';
+import CategoryView from './pages/CategoryView';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Route path="/admin/panel" element={<AdminPanel />} />
       <Route path="/admin/register" element={<RegisterAdmin />} />
       <Route path="/product/:id" element={<ProductDetails />} />
+      <Route path="/categoria/:nombre" element={<CategoryView />} />
     </Routes>
   );
 }

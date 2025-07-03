@@ -30,15 +30,35 @@ router.post('/', verifyToken, upload.single('image'), async (req, res) => {
 
 // Obtener todos los productos (con filtro por categoría y búsqueda)
 router.get('/', async (req, res) => {
+  // LOG FORZADO: para ver si llegan peticiones
+  console.log('GET /api/products llamada', req.query);
   try {
     const { category, search } = req.query;
     let filter = {};
-    if (category) {
-      filter.category = category;
+    if (category && search) {
+      filter = {
+        $and: [
+          { category: { $regex: category, $options: 'i' } },
+          {
+            $or: [
+              { name: { $regex: search, $options: 'i' } },
+              { description: { $regex: search, $options: 'i' } }
+            ]
+          }
+        ]
+      };
+    } else if (category) {
+      filter = { category: { $regex: category, $options: 'i' } };
+    } else if (search) {
+      filter = {
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ]
+      };
     }
-    if (search) {
-      filter.name = { $regex: search, $options: 'i' };
-    }
+    // LOG FILTRO
+    console.log('Filtro usado:', JSON.stringify(filter));
     const products = await Product.find(filter);
     res.json(products);
   } catch (error) {

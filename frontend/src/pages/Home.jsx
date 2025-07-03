@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './home.css';
 
 const CATEGORIES = [
@@ -17,7 +17,9 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [search, setSearch] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -30,16 +32,29 @@ export default function Home() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Mostrar el spinner solo si la carga tarda más de 300ms
+  useEffect(() => {
+    let timeout;
+    if (isLoading) {
+      timeout = setTimeout(() => setShowLoading(true), 300);
+    } else {
+      setShowLoading(false);
+    }
+    return () => clearTimeout(timeout);
+  }, [isLoading]);
+
   // Fetch products with filters
   useEffect(() => {
     setIsLoading(true);
-    let url = 'http://localhost:5000/api/products?';
+    const params = new URLSearchParams();
     if (selectedCategory) {
-      url += `category=${encodeURIComponent(selectedCategory)}&`;
+      params.append('category', selectedCategory);
     }
-    if (search) {
-      url += `search=${encodeURIComponent(search)}`;
+    const trimmedSearch = search.trim();
+    if (trimmedSearch.length > 0) {
+      params.append('search', trimmedSearch);
     }
+    const url = `http://localhost:5000/api/products${params.toString() ? '?' + params.toString() : ''}`;
     axios.get(url)
       .then(res => {
         setProducts(res.data);
@@ -73,7 +88,7 @@ export default function Home() {
                 <ul className="dropdown-menu">
                   <li
                     className={!selectedCategory ? 'active' : ''}
-                    onClick={() => { setSelectedCategory(''); setDropdownOpen(false); }}
+                    onClick={() => { setSelectedCategory(''); setDropdownOpen(false); navigate('/'); }}
                   >
                     Todas
                   </li>
@@ -81,7 +96,11 @@ export default function Home() {
                     <li
                       key={cat}
                       className={selectedCategory === cat ? 'active' : ''}
-                      onClick={() => { setSelectedCategory(cat); setDropdownOpen(false); }}
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                        setDropdownOpen(false);
+                        navigate(`/categoria/${cat.replace(/ /g, '-').toLowerCase()}`);
+                      }}
                     >
                       {cat}
                     </li>
@@ -94,7 +113,11 @@ export default function Home() {
               className="search-input"
               placeholder="Buscar productos..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => {
+                const value = e.target.value;
+                if (value === search) return;
+                setSearch(value);
+              }}
             />
           </nav>
           <div className="header-buttons">
@@ -121,9 +144,13 @@ export default function Home() {
 
       {/* Contenido principal */}
       <main className="main-content">
-        {isLoading ? (
+        {showLoading ? (
           <div className="loading-spinner">
             <div className="spinner"></div>
+          </div>
+        ) : products.length === 0 && (search.trim() || selectedCategory) ? (
+          <div className="no-products-message">
+            No hay productos con ese filtro.
           </div>
         ) : (
           <div className="products-grid">

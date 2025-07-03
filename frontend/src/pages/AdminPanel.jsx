@@ -89,7 +89,7 @@ export default function AdminPanel() {
         alert('Producto agregado correctamente');
       }
 
-      setForm({ name: '', price: '', stock: '', description: '', image: null });
+      setForm({ name: '', price: '', stock: '', description: '', image: null, category: '' });
       fetchProducts();
     } catch (error) {
       console.error('Error:', error.response?.data || error.message);
