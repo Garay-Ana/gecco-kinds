@@ -1,15 +1,32 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './home.css';
 
 const CATEGORIES = [
-  'Ropa Deportiva',
-  'Ropa de Caballero',
-  'Ropa de Dama',
-  'Ropa de Niño',
-  'Ropa Elegante',
+  'Ropa para Niño',
+  'Ropa para Niña'
 ];
+
+// Mapeo entre slug y nombre exacto de categoría
+const CATEGORY_SLUGS = {
+  'ropa-para-nino': 'Ropa para Niño',
+  'ropa-para-niño': 'Ropa para Niño',
+  'ropa-para-nina': 'Ropa para Niña',
+  'ropa-para-niña': 'Ropa para Niña',
+};
+
+function getCategoryFromSlug(slug) {
+  // Normaliza el slug para soportar variantes con y sin tilde
+  return CATEGORY_SLUGS[slug] || CATEGORY_SLUGS[slug.replace('ñ', 'n')] || '';
+}
+
+function getSlugFromCategory(category) {
+  // Devuelve el slug correcto para la categoría
+  if (category === 'Ropa para Niño') return 'ropa-para-nino';
+  if (category === 'Ropa para Niña') return 'ropa-para-nina';
+  return '';
+}
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -20,6 +37,27 @@ export default function Home() {
   const [showLoading, setShowLoading] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Sincronizar selectedCategory con la URL
+  useEffect(() => {
+    const match = location.pathname.match(/^\/categoria\/(.+)$/);
+    if (match) {
+      const slug = match[1];
+      const category = getCategoryFromSlug(slug);
+      if (category && category !== selectedCategory) {
+        setSelectedCategory(category);
+      }
+    } else if (selectedCategory) {
+      setSelectedCategory('');
+    }
+    // eslint-disable-next-line
+  }, [location.pathname]);
+
+  // Mostrar el nombre de la categoría correctamente en el header
+  const displayCategory = selectedCategory
+    ? selectedCategory.replace('nino', 'niño').replace('nina', 'niña')
+    : '';
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -67,12 +105,12 @@ export default function Home() {
   }, [selectedCategory, search]);
 
   return (
-    <div className="home-container">
+    <div className="home-bg">
       {/* Header */}
       <header className="home-header">
         <div className="header-content">
           <h1 className="logo">
-            <span className="logo-accent">Style</span>Fashion
+            <span className="logo-accent">GECCO</span> FOR KIDS
           </h1>
           {/* Categorías y búsqueda */}
           <nav className="navbar-categories">
@@ -99,7 +137,7 @@ export default function Home() {
                       onClick={() => {
                         setSelectedCategory(cat);
                         setDropdownOpen(false);
-                        navigate(`/categoria/${cat.replace(/ /g, '-').toLowerCase()}`);
+                        navigate(`/categoria/${getSlugFromCategory(cat)}`);
                       }}
                     >
                       {cat}
@@ -120,22 +158,20 @@ export default function Home() {
               }}
             />
           </nav>
+          <div className="header-category-title">
+            {selectedCategory && (
+              <span style={{ fontWeight: 700, fontSize: '2rem', marginLeft: 40 }}>
+                Categoría: {displayCategory}
+              </span>
+            )}
+          </div>
           <div className="header-buttons">
             <Link to="/admin/login">
               <button className="header-button admin">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
-                ¿Eres vendedor?
-              </button>
-            </Link>
-            <Link to="/admin/register">
-              <button className="header-button register">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6z" />
-                  <path fillRule="evenodd" d="M13 5a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1V6a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                Registrar
+                Admin
               </button>
             </Link>
           </div>
@@ -181,6 +217,35 @@ export default function Home() {
                   </h3>
                   <p className="product-category">{product.category}</p>
                   <p className="product-description">{product.description}</p>
+                  {/* COLORES */}
+                  {product.colors && (Array.isArray(product.colors) ? product.colors.length : String(product.colors).split(',').filter(c => c && c.trim() !== '').length) > 0 && (
+                    <div className="product-colors-row">
+                      <span className="color-count">Colores:</span>
+                      <div className="color-dot-list">
+                        {(Array.isArray(product.colors) ? product.colors : String(product.colors).split(',').filter(c => c && c.trim() !== '')).slice(0, 5).map((color, idx) => (
+                          <span key={idx} className="color-dot" style={{background: color.trim()}} title={color.trim()}></span>
+                        ))}
+                        {Array.isArray(product.colors) && product.colors.length > 5 && <span className="color-dot more">+{product.colors.length - 5}</span>}
+                      </div>
+                    </div>
+                  )}
+                  {/* TALLAS */}
+                  {product.sizes && (Array.isArray(product.sizes) ? product.sizes.length : String(product.sizes).split(',').filter(s => s && s.trim() !== '').length) > 0 && (
+                    <div className="product-sizes-row">
+                      <span className="sizes-label">Tallas:</span>
+                      {(Array.isArray(product.sizes) ? product.sizes : String(product.sizes).split(',').filter(s => s && s.trim() !== '')).map((size, idx) => (
+                        <span key={idx} className="size-badge">{size}</span>
+                      ))}
+                    </div>
+                  )}
+                  {/* MINIATURAS DE GALERÍA */}
+                  {product.images && product.images.length > 1 && (
+                    <div className="product-thumbnails-row">
+                      {product.images.map((img, idx) => (
+                        <img key={idx} src={img} alt={`Miniatura ${idx+1}`} className="product-thumb" style={{width:32, height:32, objectFit:'cover', borderRadius:6, marginRight:4}} />
+                      ))}
+                    </div>
+                  )}
                   <Link to={`/product/${product._id}`} className="details-button">Ver Detalles</Link>
                 </div>
               </div>
@@ -192,7 +257,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="home-footer">
         <div className="footer-content">
-          <p className="footer-text">© {new Date().getFullYear()} StyleFashion. Todos los derechos reservados.</p>
+          <p className="footer-text">© {new Date().getFullYear()} GECCO FOR KIDS. Todos los derechos reservados.</p>
           <div className="social-links">
             <a href="#" className="social-link">
               <svg className="social-icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -210,6 +275,7 @@ export default function Home() {
               </svg>
             </a>
           </div>
+          <p className="footer-authors" style={{marginTop: '0.7rem', fontSize: '1rem', color: '#64748b', textAlign: 'center'}}>Autores: Ana Gabriel Garay, Cesar Eduardo Galvis</p>
         </div>
       </footer>
     </div>

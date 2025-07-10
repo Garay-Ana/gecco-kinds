@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './register-admin.css';
 
 export default function RegisterAdmin() {
   const [email, setEmail] = useState('');
@@ -15,39 +16,55 @@ export default function RegisterAdmin() {
         email,
         password
       });
-      setMsg('✅ Registrado con éxito');
+      setMsg('success');
       setTimeout(() => navigate('/admin/login'), 1500); // Redirige al login
     } catch (err) {
       console.error(err);
-      setMsg('❌ Error al registrar');
+      setMsg('error');
     }
   };
 
   return (
-    <div style={{ padding: '30px', maxWidth: '400px', margin: 'auto' }}>
-      <h2>Registro de Administrador</h2>
-      <form onSubmit={handleRegister}>
-        <input
-          type="email"
-          placeholder="Correo"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
-        />
-        <button type="submit" style={{ padding: '10px 20px' }}>
-          Registrar
-        </button>
-      </form>
-      {msg && <p style={{ marginTop: '10px', color: msg.includes('✅') ? 'green' : 'red' }}>{msg}</p>}
+    <div className="register-admin-bg">
+      <div className="register-admin-card">
+        <h1 className="register-admin-title">Registro de Administrador</h1>
+        <p className="register-admin-subtitle">Crea una cuenta de administrador para gestionar la tienda</p>
+        <form onSubmit={handleRegister} className="register-admin-form">
+          <div className="register-admin-input-group">
+            <label htmlFor="email" className="register-admin-label">Correo electrónico</label>
+            <input
+              id="email"
+              type="email"
+              className="register-admin-input"
+              placeholder="tu@correo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoFocus
+            />
+          </div>
+          <div className="register-admin-input-group">
+            <label htmlFor="password" className="register-admin-label">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              className="register-admin-input"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" className="register-admin-button">
+            Registrar
+          </button>
+        </form>
+        {msg && (
+          <div className={`register-admin-message ${msg === 'success' ? 'success' : 'error'}`}>
+            {msg === 'success' ? '✅ Registrado con éxito' : '❌ Error al registrar'}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -84,6 +84,15 @@ export default function AdminLogin() {
           </form>
           <div className="adminlogin-footer">
             <p>¿Necesita ayuda? <a href="#">Contacte al soporte</a></p>
+            <p style={{marginTop: '0.7em'}}>
+              ¿No tienes cuenta?{' '}
+              <span
+                style={{ color: '#6366f1', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600 }}
+                onClick={() => navigate('/admin/register')}
+              >
+                Regístrate
+              </span>
+            </p>
           </div>
         </div>
       </div>

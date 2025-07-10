@@ -12,6 +12,7 @@ app.use(express.json());
 // Rutas
 app.use('/api/auth', require('./routes/auth'));         // 🔐 Rutas de login y registro del admin
 app.use('/api/products', require('./routes/products')); // 🛍️ Rutas de productos
+app.use('/api/orders', require('./routes/orders'));     // 📦 Rutas de pedidos
 
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI, {

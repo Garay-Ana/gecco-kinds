@@ -33,6 +33,15 @@ export default function Login() {
         <button type="submit">Entrar</button>
       </form>
       {msg && <p className="login-error">{msg}</p>}
+      <div className="login-register-link">
+        ¿No tienes cuenta?{' '}
+        <span
+          style={{ color: '#6366f1', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600 }}
+          onClick={() => navigate('/admin/register')}
+        >
+          Regístrate
+        </span>
+      </div>
     </div>
   );
 }

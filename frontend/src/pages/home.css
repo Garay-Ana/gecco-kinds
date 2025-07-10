@@ -72,6 +72,13 @@
 .header-button.admin {
   background: #6366f1;
   color: #fff;
+  font-size: 1rem;
+  padding: 0.4em 1.1em;
+  min-width: 120px;
+  max-width: 160px;
+  height: 38px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .header-button.admin:hover {
@@ -91,6 +98,20 @@
   margin-right: 0.5rem;
   width: 1.25rem;
   height: 1.25rem;
+}
+
+.header-button.admin svg {
+  margin-right: 0.5rem;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Forzar una sola línea en el texto del botón */
+.header-button.admin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 @media (max-width: 700px) {
@@ -378,6 +399,79 @@
   border-radius: 12px;
   padding: 2.5rem 1rem;
   box-shadow: 0 2px 12px rgba(99,102,241,0.06);
+}
+
+.product-colors-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+.color-count {
+  font-size: 0.95em;
+  color: #64748b;
+  margin-right: 0.5em;
+}
+.color-dot-list {
+  display: flex;
+  gap: 0.3em;
+}
+.color-dot {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+  margin-right: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+.color-dot.more {
+  background: #e5e7eb;
+  color: #6366f1;
+  font-size: 0.95em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+.product-sizes-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+.sizes-label {
+  font-size: 0.95em;
+  color: #64748b;
+  font-weight: 600;
+  margin-right: 0.5em;
+}
+.size-badge {
+  display: inline-block;
+  background: #e0e7ff;
+  color: #4f46e5;
+  font-size: 0.95em;
+  font-weight: 600;
+  padding: 0.18em 0.9em;
+  border-radius: 8px;
+  margin-right: 0.2em;
+  margin-bottom: 0.1em;
+  border: 1.5px solid #c7d2fe;
+}
+.product-thumbnails-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 0.2rem;
+}
+.product-thumb {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  margin-right: 4px;
 }
 
 @media (max-width: 640px) {

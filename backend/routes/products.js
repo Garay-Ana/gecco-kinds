@@ -7,24 +7,54 @@ const { storage } = require('../config/cloudinary');
 
 const upload = multer({ storage });
 
+// Utilidad para normalizar arrays de string (tallas, colores)
+function normalizeStringArray(val) {
+  if (Array.isArray(val)) {
+    return val.flatMap(v =>
+      typeof v === 'string' ? v.split(',').map(s => s.trim()).filter(Boolean) : []
+    );
+  }
+  if (typeof val === 'string') {
+    return val.split(',').map(s => s.trim()).filter(Boolean);
+  }
+  return [];
+}
+
 // Crear producto con imagen en Cloudinary
 router.post('/', verifyToken, upload.single('image'), async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'No autorizado' });
     }
-
     const { name, price, description, stock, category } = req.body;
+    const sizes = normalizeStringArray(req.body.sizes);
+    const colors = normalizeStringArray(req.body.colors);
     const image = req.file?.path || '';
-
-    const product = new Product({ name, price, description, stock, image, category });
+    const product = new Product({ name, price, description, stock, image, category, sizes, colors });
     const savedProduct = await product.save();
-
-    console.log('✅ Producto guardado correctamente:', savedProduct);
     res.status(201).json(savedProduct);
   } catch (error) {
-    console.error('❌ Error al guardar el producto:', error.message);
     res.status(500).json({ error: 'Error al guardar el producto' });
+  }
+});
+
+// Crear producto con varias imágenes (galería)
+router.post('/multi', verifyToken, upload.array('images', 8), async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+    const { name, price, description, stock, category } = req.body;
+    const sizes = normalizeStringArray(req.body.sizes);
+    const colors = normalizeStringArray(req.body.colors);
+    let images = req.files?.map(f => f.path) || [];
+    images = images.filter(img => typeof img === 'string' && img.trim() !== '');
+    const image = images[0] || '';
+    const product = new Product({ name, price, description, stock, category, image, images, sizes, colors });
+    const savedProduct = await product.save();
+    res.status(201).json(savedProduct);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al guardar el producto (multi-imagen)' });
   }
 });
 
@@ -38,7 +68,7 @@ router.get('/', async (req, res) => {
     if (category && search) {
       filter = {
         $and: [
-          { category: { $regex: category, $options: 'i' } },
+          { category: { $regex: `^${category.trim()}$`, $options: 'i' } },
           {
             $or: [
               { name: { $regex: search, $options: 'i' } },
@@ -48,7 +78,7 @@ router.get('/', async (req, res) => {
         ]
       };
     } else if (category) {
-      filter = { category: { $regex: category, $options: 'i' } };
+      filter = { category: { $regex: `^${category.trim()}$`, $options: 'i' } };
     } else if (search) {
       filter = {
         $or: [
@@ -103,28 +133,52 @@ router.put('/:id', verifyToken, upload.single('image'), async (req, res) => {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'No autorizado' });
     }
-
     const { name, price, description, stock, category } = req.body;
-    const updateData = { name, price, description, stock, category };
-
+    const sizes = normalizeStringArray(req.body.sizes);
+    const colors = normalizeStringArray(req.body.colors);
+    const updateData = { name, price, description, stock, category, sizes, colors };
     if (req.file?.path) {
       updateData.image = req.file.path;
     }
-
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       updateData,
       { new: true }
     );
-
     if (!updatedProduct) {
       return res.status(404).json({ error: 'Producto no encontrado' });
     }
-
     res.json(updatedProduct);
   } catch (error) {
-    console.error('❌ Error al actualizar producto:', error.message);
     res.status(500).json({ error: 'Error al actualizar producto' });
+  }
+});
+
+// PUT para editar galería
+router.put('/multi/:id', verifyToken, upload.array('images', 8), async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+    const { name, price, description, stock, category } = req.body;
+    const sizes = normalizeStringArray(req.body.sizes);
+    const colors = normalizeStringArray(req.body.colors);
+    let images = req.files?.map(f => f.path) || [];
+    images = images.filter(img => typeof img === 'string' && img.trim() !== '');
+    const updateData = { name, price, description, stock, category, sizes, colors };
+    if (images.length > 0) {
+      updateData.images = images;
+      updateData.image = images[0];
+    }
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+    if (!updatedProduct) return res.status(404).json({ error: 'Producto no encontrado' });
+    res.json(updatedProduct);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al editar el producto (multi-imagen)' });
   }
 });
 

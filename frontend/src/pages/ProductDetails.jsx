@@ -8,6 +8,8 @@ export default function ProductDetails() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -51,6 +53,12 @@ export default function ProductDetails() {
     );
   }
 
+  // Filtrar imágenes válidas
+  const validImages = Array.isArray(product.images)
+    ? product.images.filter(img => typeof img === 'string' && img.trim() !== '')
+    : [];
+  const mainImage = validImages[selectedImage] || validImages[0] || product.image;
+
   const whatsappMessage = `Hola, estoy interesado en el producto: ${product.name} (${(product.price * 1000).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })})`;
 
   return (
@@ -64,8 +72,41 @@ export default function ProductDetails() {
 
       <div className="product-details-card">
         <div className="product-details-image">
-          {product.image ? (
-            <img src={product.image} alt={product.name} loading="lazy" />
+          {validImages.length > 0 ? (
+            <div className="product-gallery-vsc">
+              {validImages.length > 1 && (
+                <div className="gallery-thumbnails-vsc">
+                  {validImages.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt={`Miniatura ${idx + 1}`}
+                      className={`gallery-thumb-vsc${selectedImage === idx ? ' active' : ''}`}
+                      onClick={() => setSelectedImage(idx)}
+                    />
+                  ))}
+                </div>
+              )}
+              <div className="gallery-main-image-vsc">
+                <img src={mainImage} alt={product.name} />
+                {validImages.length > 1 && (
+                  <>
+                    <button
+                      className="gallery-arrow left"
+                      onClick={() => setSelectedImage((selectedImage - 1 + validImages.length) % validImages.length)}
+                      aria-label="Anterior"
+                    >&#8592;</button>
+                    <button
+                      className="gallery-arrow right"
+                      onClick={() => setSelectedImage((selectedImage + 1) % validImages.length)}
+                      aria-label="Siguiente"
+                    >&#8594;</button>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : product.image ? (
+            <img src={product.image} alt={product.name} className="gallery-main-image-vsc" />
           ) : (
             <div className="image-placeholder">
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#9ca3af" viewBox="0 0 16 16">
@@ -75,13 +116,44 @@ export default function ProductDetails() {
             </div>
           )}
         </div>
-
         <div className="product-details-info">
           <h2>{product.name}</h2>
           <p className="product-details-price">
             {(product.price * 1000).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}
           </p>
-          
+          {product.colors && product.colors.length > 0 && (
+            <div className="product-details-colors-vsc">
+              <span className="color-label">Color:</span>
+              <div className="colors-list-vsc">
+                {(Array.isArray(product.colors) ? product.colors : String(product.colors).split(',')).filter(c => c && c.trim() !== '').map((color, idx) => (
+                  <span
+                    key={idx}
+                    className={`color-dot-vsc${selectedColor === idx ? ' selected' : ''}`}
+                    style={{ background: color.trim() }}
+                    title={color.trim()}
+                    onClick={() => setSelectedColor(idx)}
+                  ></span>
+                ))}
+              </div>
+            </div>
+          )}
+          {product.sizes && product.sizes.length > 0 && product.sizes.some(s => s && s.trim() !== '') && (
+            <div className="product-details-sizes-vsc">
+              <span className="sizes-label">Talla</span>
+              <div className="sizes-list-vsc">
+                {(Array.isArray(product.sizes)
+                  ? product.sizes.filter(s => s && s.trim() !== '')
+                  : String(product.sizes).split(',').filter(s => s && s.trim() !== '')
+                ).map((size, idx) => (
+                  <span
+                    key={idx}
+                    className="size-badge-vsc"
+                  >{size}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {product.description && (
             <div className="product-details-description">
               <h3>Descripción</h3>
@@ -96,7 +168,7 @@ export default function ProductDetails() {
           )}
 
           <a
-            href={`https://wa.me/573053574051?text=${encodeURIComponent(whatsappMessage)}`}
+            href={`https://wa.me/573106847094?text=${encodeURIComponent(whatsappMessage)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="whatsapp-order-btn"
