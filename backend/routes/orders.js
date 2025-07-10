@@ -19,8 +19,13 @@ router.get('/', verifyToken, async (req, res) => {
 // (Opcional) Crear pedido (para pruebas)
 router.post('/', async (req, res) => {
   try {
-    const { customerName, customerEmail, address, items, total } = req.body;
-    const order = new Order({ customerName, customerEmail, address, items, total });
+    const { customerName, customerEmail, address, items, total, sellerCode } = req.body;
+    let seller = null;
+    if (sellerCode) {
+      seller = await require('../models/Seller').findOne({ code: sellerCode });
+      if (!seller) return res.status(400).json({ error: 'Código de vendedor inválido' });
+    }
+    const order = new Order({ customerName, customerEmail, address, items, total, seller: seller?._id, sellerCode: sellerCode || null });
     await order.save();
     res.status(201).json(order);
   } catch (error) {

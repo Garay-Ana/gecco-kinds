@@ -10,6 +10,8 @@ export default function ProductDetails() {
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(0);
+  const [sellerCode, setSellerCode] = useState('');
+  const [sellerCodeMsg, setSellerCodeMsg] = useState('');
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -166,6 +168,18 @@ export default function ProductDetails() {
               <strong>Disponibilidad:</strong> {product.stock > 0 ? `${product.stock} unidades` : 'Agotado'}
             </p>
           )}
+
+          <div className="seller-code-box" style={{margin:'1.5em 0'}}>
+            <label style={{fontWeight:600, color:'#6366f1'}}>¿Tienes código de vendedor? Ingrésalo aquí:</label>
+            <input
+              type="text"
+              value={sellerCode}
+              onChange={e => setSellerCode(e.target.value.toUpperCase())}
+              placeholder="Ej: ZONA2-JUAN"
+              style={{marginTop:'0.5em',padding:'0.7em 1em',borderRadius:'0.7em',border:'1.5px solid #c7d2fe',width:'100%',maxWidth:'320px'}}
+            />
+            {sellerCodeMsg && <div style={{color:'#ef4444',marginTop:'0.3em'}}>{sellerCodeMsg}</div>}
+          </div>
 
           <a
             href={`https://wa.me/573106847094?text=${encodeURIComponent(whatsappMessage)}`}

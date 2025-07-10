@@ -26,7 +26,7 @@ export default function AdminLogin() {
 
   return (
     <div className="adminlogin-bg-gradient">
-      <div className="adminlogin-center-container">
+      <div className="adminlogin-center-container" style={{ position: 'relative' }}>
         <div className="adminlogin-card">
           <div className="adminlogin-icon-circle">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 48 48" stroke="currentColor" className="adminlogin-main-icon">
@@ -94,6 +94,14 @@ export default function AdminLogin() {
               </span>
             </p>
           </div>
+          <span
+            className="back-home-arrow"
+            style={{ cursor: 'pointer', position: 'absolute', top: 24, left: 24, fontSize: '2rem', color: '#6366f1', zIndex: 10 }}
+            onClick={() => navigate('/')}
+            title="Volver al inicio"
+          >
+            &#8592;
+          </span>
         </div>
       </div>
     </div>

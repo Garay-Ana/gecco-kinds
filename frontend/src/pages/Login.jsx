@@ -25,7 +25,15 @@ export default function Login() {
   };
 
   return (
-    <div className="login-container">
+    <div className="login-container" style={{ position: 'relative' }}>
+      <span
+        className="back-home-arrow"
+        style={{ cursor: 'pointer', position: 'absolute', top: 24, left: 24, fontSize: '2rem', color: '#6366f1', zIndex: 10 }}
+        onClick={() => navigate('/')}
+        title="Volver al inicio"
+      >
+        &#8592;
+      </span>
       <h2>Iniciar Sesión</h2>
       <form onSubmit={handleLogin} className="login-form">
         <input type="email" placeholder="Correo" value={email} onChange={(e) => setEmail(e.target.value)} required />

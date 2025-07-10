@@ -14,7 +14,9 @@ const orderSchema = new mongoose.Schema({
   ],
   total: { type: Number, required: true },
   status: { type: String, enum: ['pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'], default: 'pendiente' },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  seller: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller' }, // Referencia opcional al vendedor
+  sellerCode: { type: String } // Código de vendedor ingresado por el cliente
 });
 
 module.exports = mongoose.model('Order', orderSchema);

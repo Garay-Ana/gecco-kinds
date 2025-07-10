@@ -1,0 +1,279 @@
+/* seller-panel.css - Estilos modernos y responsive para el panel de vendedor */
+.sellerpanel-bg {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #f5f7ff 0%, #e0e7ff 100%);
+  padding-bottom: 2rem;
+}
+.sellerpanel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 0 0 1.2rem 1.2rem;
+  box-shadow: 0 2px 12px rgba(16,185,129,0.06);
+  padding: 2rem 2rem 1rem 2rem;
+  margin-bottom: 2rem;
+  max-width: 1200px;
+  width: 95vw;
+  margin-left: auto;
+  margin-right: auto;
+}
+.sellerpanel-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #10b981;
+  margin: 0;
+}
+.sellerpanel-profile-btn {
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.7em 1.5em;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 1em;
+  transition: background 0.2s;
+}
+.sellerpanel-profile-btn:hover {
+  background: #059669;
+}
+.sellerpanel-dashboard {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 12px rgba(16,185,129,0.06);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  max-width: 1200px;
+  width: 95vw;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: flex-start;
+}
+.sellerpanel-welcome {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #10b981;
+  margin-bottom: 0.5em;
+}
+.sellerpanel-zone {
+  font-size: 1.1rem;
+  color: #6366f1;
+  margin-bottom: 0.5em;
+}
+.sellerpanel-stats {
+  display: flex;
+  gap: 2em;
+  flex-wrap: wrap;
+}
+.sellerpanel-stat-card {
+  background: #f0fdf4;
+  border-radius: 0.8rem;
+  padding: 1.2em 2em;
+  color: #10b981;
+  font-weight: 700;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.06);
+  margin-bottom: 0.5em;
+}
+.sellerpanel-activity {
+  flex: 1 1 250px;
+  min-width: 250px;
+}
+.sellerpanel-activity-title {
+  color: #6366f1;
+  font-weight: 700;
+  margin-bottom: 0.5em;
+}
+.sellerpanel-activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: #334155;
+  font-size: 0.98rem;
+}
+.sellerpanel-searchbar {
+  display: flex;
+  gap: 1em;
+  margin-bottom: 1.5em;
+  max-width: 1200px;
+  width: 95vw;
+  margin-left: auto;
+  margin-right: auto;
+}
+.sellerpanel-searchbar input, .sellerpanel-searchbar select {
+  padding: 0.7em 1em;
+  border-radius: 0.7rem;
+  border: 1.5px solid #c7d2fe;
+  font-size: 1rem;
+  background: #f8fafc;
+  transition: border 0.2s;
+}
+.sellerpanel-searchbar input:focus, .sellerpanel-searchbar select:focus {
+  outline: none;
+  border: 1.5px solid #10b981;
+  background: #fff;
+}
+.sellerpanel-client-list {
+  max-width: 1200px;
+  width: 95vw;
+  margin-left: auto;
+  margin-right: auto;
+}
+.sellerpanel-client-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+.sellerpanel-client-card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.06);
+  padding: 1.5em 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+  position: relative;
+}
+.sellerpanel-client-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 0.2em;
+}
+.sellerpanel-client-info {
+  color: #334155;
+  font-size: 1rem;
+  margin-bottom: 0.2em;
+}
+.sellerpanel-client-actions {
+  display: flex;
+  gap: 0.7em;
+  margin-top: 0.5em;
+}
+.sellerpanel-btn {
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5em 1.1em;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sellerpanel-btn.edit {
+  background: #6366f1;
+}
+.sellerpanel-btn.delete {
+  background: #ef4444;
+}
+.sellerpanel-btn:hover {
+  filter: brightness(0.95);
+}
+.sellerpanel-form {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(16,185,129,0.08);
+  margin-bottom: 2rem;
+  max-width: 1200px;
+  width: 95vw;
+  margin-left: auto;
+  margin-right: auto;
+}
+.sellerpanel-form-title {
+  font-size: 1.3rem;
+  color: #10b981;
+  margin-bottom: 1em;
+}
+.sellerpanel-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.sellerpanel-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.sellerpanel-form-field label {
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+.sellerpanel-form-field input,
+.sellerpanel-form-field textarea {
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background-color: #f8fafc;
+  transition: all 0.2s;
+}
+.sellerpanel-form-field input:focus,
+.sellerpanel-form-field textarea:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+}
+.sellerpanel-form-field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+.sellerpanel-form-actions {
+  display: flex;
+  gap: 1em;
+  margin-top: 0.5em;
+}
+.sellerpanel-message-error {
+  color: #ef4444;
+  background: #fef2f2;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+.sellerpanel-message-success {
+  color: #10b981;
+  background: #f0fdf4;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+@media (max-width: 900px) {
+  .sellerpanel-dashboard, .sellerpanel-form, .sellerpanel-client-list, .sellerpanel-header, .sellerpanel-searchbar {
+    width: 99vw;
+    max-width: 99vw;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+  .sellerpanel-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .sellerpanel-client-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .sellerpanel-header, .sellerpanel-dashboard, .sellerpanel-form, .sellerpanel-client-list, .sellerpanel-searchbar {
+    padding: 1em 0.2em;
+  }
+  .sellerpanel-title {
+    font-size: 1.2rem;
+  }
+  .sellerpanel-dashboard {
+    flex-direction: column;
+    gap: 1em;
+  }
+}

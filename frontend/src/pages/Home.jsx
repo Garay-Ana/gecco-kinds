@@ -174,6 +174,14 @@ export default function Home() {
                 Admin
               </button>
             </Link>
+            <Link to="/seller/login">
+              <button className="header-button register">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6z" />
+                </svg>
+                Vendedor
+              </button>
+            </Link>
           </div>
         </div>
       </header>
