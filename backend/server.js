@@ -25,6 +25,7 @@ const sellerRoutes = require('./routes/sellers');
 const uploadClientRoutes = require('./routes/uploadClient');
 const productDetailsRoutes = require('./routes/productDetails');
 const salesRoutes = require('./routes/sales');
+const adminSellersRoutes = require('./routes/adminSellers');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -33,6 +34,7 @@ app.use('/api/sellers', sellerRoutes);
 app.use('/api/upload-client', uploadClientRoutes);
 app.use('/api/product-details', productDetailsRoutes);
 app.use('/api/sales', salesRoutes);
+app.use('/api/admin-sellers', adminSellersRoutes);
 
 const PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })

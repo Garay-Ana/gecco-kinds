@@ -6,14 +6,13 @@ import './seller-panel.css';
 export default function EVentas() {
   const [form, setForm] = useState({
     saleDate: '',
-    customerName: '',
-    customerPhone: '',
+    sellerName: '',
+    sellerPhone: '',
     products: '',
     quantity: '',
     totalPrice: '',
     hasSeller: 'No',
     sellerCode: '',
-    sellerName: '',
     paymentMethod: '',
     notes: ''
   });
@@ -37,14 +36,13 @@ export default function EVentas() {
       setMsg('Venta registrada correctamente');
       setForm({
         saleDate: '',
-        customerName: '',
-        customerPhone: '',
+        sellerName: '',
+        sellerPhone: '',
         products: '',
         quantity: '',
         totalPrice: '',
         hasSeller: 'No',
         sellerCode: '',
-        sellerName: '',
         paymentMethod: '',
         notes: ''
       });
@@ -67,15 +65,15 @@ export default function EVentas() {
             <input type="date" name="saleDate" value={form.saleDate} onChange={handleChange} required />
           </div>
           <div className="sellerpanel-form-field">
-            <label>Nombre del cliente</label>
-            <input type="text" name="customerName" value={form.customerName} onChange={handleChange} required />
+            <label>Nombre del vendedor</label>
+            <input type="text" name="sellerName" value={form.sellerName} onChange={handleChange} required />
           </div>
           <div className="sellerpanel-form-field">
-            <label>Teléfono del cliente</label>
-            <input type="text" name="customerPhone" value={form.customerPhone} onChange={handleChange} required />
+            <label>Teléfono del vendedor</label>
+            <input type="text" name="sellerPhone" value={form.sellerPhone} onChange={handleChange} required />
           </div>
           <div className="sellerpanel-form-field">
-            <label>Producto(s) comprado(s)</label>
+            <label>Producto(s) vendido(s)</label>
             <textarea name="products" value={form.products} onChange={handleChange} placeholder="Lista de productos o descripción" required />
           </div>
           <div className="sellerpanel-form-field">
@@ -83,27 +81,21 @@ export default function EVentas() {
             <input type="number" name="quantity" value={form.quantity} onChange={handleChange} min="1" required />
           </div>
           <div className="sellerpanel-form-field">
-            <label>Precio total de la compra</label>
+            <label>Precio total de la venta</label>
             <input type="number" name="totalPrice" value={form.totalPrice} onChange={handleChange} min="0" step="0.01" required />
           </div>
           <div className="sellerpanel-form-field">
-            <label>¿Tiene asesor/vendedor?</label>
+            <label>¿Tiene asesor/vendedor adicional?</label>
             <select name="hasSeller" value={form.hasSeller} onChange={handleChange}>
               <option value="No">No</option>
               <option value="Sí">Sí</option>
             </select>
           </div>
           {form.hasSeller === 'Sí' && (
-            <>
-              <div className="sellerpanel-form-field">
-                <label>Código del vendedor</label>
-                <input type="text" name="sellerCode" value={form.sellerCode} onChange={handleChange} />
-              </div>
-              <div className="sellerpanel-form-field">
-                <label>Nombre del vendedor (opcional)</label>
-                <input type="text" name="sellerName" value={form.sellerName} onChange={handleChange} />
-              </div>
-            </>
+            <div className="sellerpanel-form-field">
+              <label>Código del vendedor adicional</label>
+              <input type="text" name="sellerCode" value={form.sellerCode} onChange={handleChange} required />
+            </div>
           )}
           <div className="sellerpanel-form-field">
             <label>Método de pago</label>
@@ -114,7 +106,7 @@ export default function EVentas() {
             <textarea name="notes" value={form.notes} onChange={handleChange} placeholder="Notas adicionales" />
           </div>
         </div>
-          <div className="sellerpanel-form-actions">
+        <div className="sellerpanel-form-actions">
           <button type="submit" className="sellerpanel-btn">Registrar Venta</button>
         </div>
         {msg && <div style={{marginTop: '1em', color: msg.includes('correctamente') ? 'green' : 'red'}}>{msg}</div>}
