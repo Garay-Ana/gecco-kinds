@@ -741,14 +741,14 @@ export default function AdminPanel() {
                             </tr>
                             </thead>
                             <tbody>
-                              {sellerSales.map(sale => (
-                                <tr key={sale._id}>
-                                  <td>{new Date(sale.createdAt).toLocaleDateString()}</td>
-                                  <td>{sale.customerName}</td>
-                                  <td>${sale.total.toLocaleString()}</td>
-                                  <td>{sale.paymentMethod || 'No especificado'}</td>
-                                </tr>
-                              ))}
+{sellerSales.map(sale => (
+  <tr key={sale._id}>
+    <td>{new Date(sale.saleDate || sale.createdAt).toLocaleDateString()}</td>
+    <td>{sale.customerName}</td>
+    <td>${sale.total.toLocaleString()}</td>
+    <td>{sale.paymentMethod || 'No especificado'}</td>
+  </tr>
+))}
                             </tbody>
                           </table>
                         </div>
