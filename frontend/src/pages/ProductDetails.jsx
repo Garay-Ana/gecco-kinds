@@ -12,6 +12,7 @@ export default function ProductDetails() {
   const [selectedColor, setSelectedColor] = useState(0);
   const [sellerCode, setSellerCode] = useState('');
   const [sellerCodeMsg, setSellerCodeMsg] = useState('');
+  const [selectedSize, setSelectedSize] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -61,7 +62,25 @@ export default function ProductDetails() {
     : [];
   const mainImage = validImages[selectedImage] || validImages[0] || product.image;
 
-  const whatsappMessage = `Hola, estoy interesado en el producto: ${product.name} (${(product.price * 1000).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })})`;
+  const colorNameMap = {
+    '#4caf50': 'Verde',
+    '#ffeb3b': 'Amarillo',
+    '#ff9800': 'Naranja',
+    '#f44336': 'Rojo',
+    '#2196f3': 'Azul',
+    '#9c27b0': 'Morado',
+    '#000000': 'Negro',
+    '#ffffff': 'Blanco',
+  };
+
+  const colorsArray = (Array.isArray(product.colors) ? product.colors : String(product.colors).split(',')).filter(c => c && c.trim() !== '');
+  const selectedColorCode = colorsArray[selectedColor] || '';
+  const selectedColorName = colorNameMap[selectedColorCode.toLowerCase()] || selectedColorCode || '';
+
+  const whatsappMessage = `Hola, estoy interesado en el producto: ${product.name} (${(product.price * 1000).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })})
+Color: ${selectedColorName}
+Talla: ${selectedSize || 'No seleccionada'}
+${sellerCode ? `Código de vendedor: ${sellerCode}` : ''}`;
 
   return (
     <div className="product-details-container">
@@ -149,7 +168,8 @@ export default function ProductDetails() {
                 ).map((size, idx) => (
                   <span
                     key={idx}
-                    className="size-badge-vsc"
+                    className={`size-badge-vsc${selectedSize === size ? ' selected' : ''}`}
+                    onClick={() => setSelectedSize(size)}
                   >{size}</span>
                 ))}
               </div>

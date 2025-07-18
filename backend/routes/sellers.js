@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken');
 const verifyToken = require('../middleware/authMiddleware');
 
 function generateSellerCode(name, zone) {
-  // Genera un código tipo ZONA5-MIGUEL o MARTHA23
   const cleanName = name.replace(/[^A-Z0-9]/gi, '').toUpperCase();
   const randomNum = Math.floor(10 + Math.random() * 90);
   if (zone) {
@@ -16,7 +15,6 @@ function generateSellerCode(name, zone) {
 }
 
 function generateClientCode(name) {
-  // Genera un código tipo NOMBRE23
   const cleanName = name.replace(/[^A-Z0-9]/gi, '').toUpperCase();
   const randomNum = Math.floor(10 + Math.random() * 90);
   return `${cleanName.substring(0,8)}${randomNum}`;
@@ -26,22 +24,26 @@ function generateClientCode(name) {
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, zone } = req.body;
-    if (!name || !email || !password || !zone) return res.status(400).json({ error: 'Faltan campos' });
+    if (!name || !email || !password || !zone) {
+      return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    }
+    
     const exists = await Seller.findOne({ email });
     if (exists) return res.status(400).json({ error: 'El correo ya está registrado' });
+    
     let code;
     let unique = false;
-    // Generar código único
     while (!unique) {
       code = generateSellerCode(name, zone);
       const codeExists = await Seller.findOne({ code });
       if (!codeExists) unique = true;
     }
+    
     const seller = new Seller({ name, email, password, zone, code });
     await seller.save();
     res.status(201).json({ message: 'Vendedor registrado', code });
   } catch (err) {
-    res.status(500).json({ error: 'Error al registrar vendedor' });
+    res.status(500).json({ error: 'Error al registrar vendedor', details: err.message });
   }
 });
 
@@ -51,12 +53,33 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     const seller = await Seller.findOne({ email });
     if (!seller) return res.status(400).json({ error: 'Credenciales incorrectas' });
+    
     const match = await seller.comparePassword(password);
     if (!match) return res.status(400).json({ error: 'Credenciales incorrectas' });
-    const token = jwt.sign({ id: seller._id, role: 'seller', zone: seller.zone }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.json({ token });
+    
+    const token = jwt.sign(
+      { 
+        id: seller._id, 
+        role: 'seller', 
+        zone: seller.zone,
+        code: seller.code
+      }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '1d' }
+    );
+    
+    res.json({ 
+      token,
+      user: {
+        id: seller._id,
+        name: seller.name,
+        email: seller.email,
+        zone: seller.zone,
+        code: seller.code
+      }
+    });
   } catch (err) {
-    res.status(500).json({ error: 'Error al iniciar sesión' });
+    res.status(500).json({ error: 'Error al iniciar sesión', details: err.message });
   }
 });
 
@@ -66,101 +89,179 @@ function sellerAuth(req, res, next) {
   return res.status(403).json({ error: 'No autorizado' });
 }
 
-// CRUD de clientes (solo para su zona)
+// CRUD de clientes
 router.get('/clients', verifyToken, sellerAuth, async (req, res) => {
-  const clients = await Client.find({ seller: req.user.id });
-  res.json(clients);
+  try {
+    const clients = await Client.find({ seller: req.user.id });
+    res.json(clients);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener clientes', details: err.message });
+  }
 });
 
 router.post('/clients', verifyToken, sellerAuth, async (req, res) => {
-  const { name, contact, address, notes, image } = req.body;
-  if (!name) return res.status(400).json({ error: 'Falta el nombre' });
+  try {
+    const { name, contact, address, notes, image } = req.body;
+    if (!name) return res.status(400).json({ error: 'El nombre es obligatorio' });
+    
+    if (!req.user.zone) {
+      return res.status(400).json({ error: 'El vendedor no tiene una zona asignada' });
+    }
 
-  // Generar código único para cliente
-  let code;
-  let unique = false;
-  while (!unique) {
-    code = generateClientCode(name);
-    const codeExists = await Client.findOne({ code });
-    if (!codeExists) unique = true;
+    let code;
+    let unique = false;
+    while (!unique) {
+      code = generateClientCode(name);
+      const codeExists = await Client.findOne({ code });
+      if (!codeExists) unique = true;
+    }
+
+    const client = new Client({
+      name,
+      contact: contact || '',
+      address: address || '',
+      notes: notes || '',
+      image: image || '',
+      zone: req.user.zone,
+      seller: req.user.id,
+      code
+    });
+
+    await client.save();
+    res.status(201).json(client);
+  } catch (err) {
+    res.status(500).json({ 
+      error: 'Error al crear cliente', 
+      details: err.message,
+      validationErrors: err.errors // Esto mostrará los errores de validación específicos
+    });
   }
-
-  const client = new Client({
-    name,
-    contact,
-    address,
-    notes,
-    image,
-    zone: req.user.zone,
-    seller: req.user.id,
-    code,
-  });
-  await client.save();
-  res.status(201).json(client);
 });
 
 router.put('/clients/:id', verifyToken, sellerAuth, async (req, res) => {
-  const { name, contact, address, notes, image } = req.body;
-  const client = await Client.findOneAndUpdate(
-    { _id: req.params.id, seller: req.user.id },
-    { name, contact, address, notes, image },
-    { new: true }
-  );
-  if (!client) return res.status(404).json({ error: 'Cliente no encontrado' });
-  res.json(client);
+  try {
+    const { name, contact, address, notes, image } = req.body;
+    const client = await Client.findOneAndUpdate(
+      { _id: req.params.id, seller: req.user.id },
+      { name, contact, address, notes, image },
+      { new: true, runValidators: true }
+    );
+    
+    if (!client) return res.status(404).json({ error: 'Cliente no encontrado o no autorizado' });
+    res.json(client);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar cliente', details: err.message });
+  }
 });
 
 router.delete('/clients/:id', verifyToken, sellerAuth, async (req, res) => {
-  const client = await Client.findOneAndDelete({ _id: req.params.id, seller: req.user.id });
-  if (!client) return res.status(404).json({ error: 'Cliente no encontrado' });
-  res.json({ message: 'Cliente eliminado' });
+  try {
+    const client = await Client.findOneAndDelete({ _id: req.params.id, seller: req.user.id });
+    if (!client) return res.status(404).json({ error: 'Cliente no encontrado o no autorizado' });
+    res.json({ message: 'Cliente eliminado correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al eliminar cliente', details: err.message });
+  }
 });
 
-// Obtener detalle de cliente por id (solo para su vendedor)
+// Obtener detalle de cliente
 router.get('/clients/:id', verifyToken, sellerAuth, async (req, res) => {
-  const client = await Client.findOne({ _id: req.params.id, seller: req.user.id });
-  if (!client) return res.status(404).json({ error: 'Cliente no encontrado' });
-  res.json(client);
+  try {
+    console.log('req.user.id:', req.user.id);
+    console.log('req.params.id:', req.params.id);
+    const client = await Client.findOne({ _id: req.params.id, seller: req.user.id });
+    console.log('client found:', client);
+    if (!client) return res.status(404).json({ error: 'Cliente no encontrado' });
+    res.json(client);
+  } catch (err) {
+    console.error('Error al obtener cliente:', err);
+    res.status(500).json({ error: 'Error al obtener cliente', details: err.message });
+  }
 });
 
-// Obtener detalle de cliente por id (ruta alternativa para frontend)
-router.get('/client/:id', verifyToken, sellerAuth, async (req, res) => {
-  const client = await Client.findOne({ _id: req.params.id, seller: req.user.id });
-  if (!client) return res.status(404).json({ error: 'Cliente no encontrado' });
-  res.json(client);
-});
+const mongoose = require('mongoose');
+const Order = require('../models/Order');
 
 // Resumen de zona
 router.get('/zone-summary', verifyToken, sellerAuth, async (req, res) => {
-  const clients = await Client.find({ seller: req.user.id });
-  const totalClients = clients.length;
-  const totalSales = clients.reduce((sum, c) => sum + (c.sales || 0), 0);
-  res.json({ zone: req.user.zone, totalClients, totalSales });
+  try {
+    const clients = await Client.find({ seller: req.user.id });
+    const totalClients = clients.length;
+
+    // Ventas personales del vendedor líder
+    const leaderOrders = await Order.find({ seller: req.user.id });
+    console.log('orders for leader sales:', leaderOrders.map(o => ({ id: o._id, total: o.total })));
+    const totalSalesLeader = leaderOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+
+    // Ventas de personas a cargo (órdenes de clientes)
+    const clientCodes = clients.map(c => c.code);
+
+    const clientOrders = await Order.find({
+      sellerCode: { $in: clientCodes }
+    });
+
+    console.log('orders for clients sales:', clientOrders.map(o => ({ id: o._id, total: o.total })));
+    const totalSalesClients = clientOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+
+    const response = { 
+      zone: req.user.zone, 
+      totalClients, 
+      totalSalesClients,
+      totalSalesLeader,
+      sellerCode: req.user.code
+    };
+    console.log('zone-summary response:', response);
+    res.json(response);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener resumen', details: err.message });
+  }
 });
 
-// Obtener perfil del vendedor autenticado
+// Perfil del vendedor
 router.get('/profile', verifyToken, sellerAuth, async (req, res) => {
-  const seller = await Seller.findById(req.user.id).select('-password');
-  if (!seller) return res.status(404).json({ error: 'No encontrado' });
-  res.json(seller);
+  try {
+    const seller = await Seller.findById(req.user.id).select('-password');
+    if (!seller) return res.status(404).json({ error: 'Vendedor no encontrado' });
+    res.json(seller);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener perfil', details: err.message });
+  }
 });
 
-// Cambiar contraseña del vendedor autenticado
+// Cambiar contraseña
 router.put('/change-password', verifyToken, sellerAuth, async (req, res) => {
-  const { password } = req.body;
-  if (!password || password.length < 6) return res.status(400).json({ error: 'Contraseña inválida' });
-  const seller = await Seller.findById(req.user.id);
-  if (!seller) return res.status(404).json({ error: 'No encontrado' });
-  seller.password = password;
-  await seller.save();
-  res.json({ message: 'Contraseña actualizada' });
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'Contraseña inválida (mínimo 6 caracteres)' });
+    }
+
+    const seller = await Seller.findById(req.user.id);
+    if (!seller) return res.status(404).json({ error: 'Vendedor no encontrado' });
+
+    const match = await seller.comparePassword(currentPassword);
+    if (!match) return res.status(400).json({ error: 'Contraseña actual incorrecta' });
+
+    seller.password = newPassword;
+    await seller.save();
+    res.json({ message: 'Contraseña actualizada correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al cambiar contraseña', details: err.message });
+  }
 });
 
 // Buscar vendedor por código
 router.get('/by-code/:code', async (req, res) => {
-  const seller = await Seller.findOne({ code: req.params.code.toUpperCase() });
-  if (!seller) return res.status(404).json({ error: 'No encontrado' });
-  res.json(seller);
+  try {
+    const seller = await Seller.findOne({ code: req.params.code.toUpperCase() })
+      .select('-password');
+      
+    if (!seller) return res.status(404).json({ error: 'Vendedor no encontrado' });
+    res.json(seller);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al buscar vendedor', details: err.message });
+  }
 });
 
 module.exports = router;
