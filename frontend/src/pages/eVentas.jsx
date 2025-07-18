@@ -37,13 +37,8 @@ export default function EVentas() {
     }
 
     try {
-      // Ajustar saleDate para evitar desfase horario
-      const adjustedSaleDate = form.saleDate ? (() => {
-        const d = new Date(form.saleDate);
-        // Ajustar la fecha para compensar el desfase horario
-        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-        return d.toISOString().split('T')[0]; // Enviar solo la parte de fecha en formato ISO
-      })() : null;
+      // Enviar la fecha tal cual sin ajuste para evitar desfase
+      const adjustedSaleDate = form.saleDate || null;
 
       await axios.post(
         'http://localhost:5000/api/sales',

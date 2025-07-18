@@ -14,6 +14,13 @@ export default function VerVentas() {
   const navigate = useNavigate();
   const token = localStorage.getItem('sellerToken');
 
+  // Mostrar la fecha tal cual sin ajuste para evitar desfase
+  const formatDateAdjusted = (dateString) => {
+    if (!dateString) return '';
+    const d = new Date(dateString);
+    return d.toLocaleDateString('es-CO');
+  };
+
   const fetchSales = async () => {
     try {
       setLoading(true);
@@ -33,6 +40,7 @@ export default function VerVentas() {
       setLoading(false);
     }
   };
+
 
 const downloadPDFReport = async () => {
   try {
@@ -245,7 +253,7 @@ const downloadPDFReport = async () => {
                 <tbody>
                   {sales.map(sale => (
                     <tr key={sale._id}>
-                      <td>{new Date(sale.saleDate || sale.createdAt).toLocaleDateString('es-CO')}</td>
+                      <td>{formatDateAdjusted(sale.saleDate || sale.createdAt)}</td>
                       <td>{sale.customerName || 'Cliente no especificado'}</td>
                       <td>{sale.sellerCode || 'VENTA DIRECTA'}</td>
                       <td>
